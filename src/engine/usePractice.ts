@@ -35,11 +35,11 @@ export function usePractice({ lesson }: UsePracticeOptions) {
       ? Math.round((stats.correctWords / totalWordsInLesson) * 100)
       : 0
 
-  const submitWord = useCallback(() => {
-    if (!currentSentence || !currentWord || phase !== "typing") return
+  const submitWord = useCallback((): "correct" | "wrong" | "noop" => {
+    if (!currentSentence || !currentWord || phase !== "typing") return "noop"
 
     const trimmed = input.trim()
-    if (!trimmed) return
+    if (!trimmed) return "noop"
 
     if (wordsMatch(currentWord.en, trimmed)) {
       const newCombo = stats.combo + 1
@@ -68,15 +68,17 @@ export function usePractice({ lesson }: UsePracticeOptions) {
       } else {
         setWordIndex((i) => i + 1)
       }
-    } else {
-      setStats((s) => ({
-        ...s,
-        combo: 0,
-        mistakes: s.mistakes + 1,
-      }))
-      setShake(true)
-      setTimeout(() => setShake(false), 400)
+      return "correct"
     }
+
+    setStats((s) => ({
+      ...s,
+      combo: 0,
+      mistakes: s.mistakes + 1,
+    }))
+    setShake(true)
+    setTimeout(() => setShake(false), 400)
+    return "wrong"
   }, [currentSentence, currentWord, input, phase, stats, wordIndex])
 
   const nextSentence = useCallback(() => {
