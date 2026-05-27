@@ -42,18 +42,84 @@ export function getSupabaseAdmin() {
   })
 }
 
-export async function findUserByPhone(admin: ReturnType<typeof getSupabaseAdmin>, phone: string) {
+async function listAllUsers(admin: ReturnType<typeof getSupabaseAdmin>): Promise<User[]> {
+  const all: User[] = []
   let page = 1
   while (page <= 10) {
     const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 200 })
     if (error) throw error
     const users = data.users as User[]
-    const found = users.find((u) => u.phone === phone)
-    if (found) return found
+    all.push(...users)
     if (users.length < 200) break
     page += 1
   }
-  return null
+  return all
+}
+
+export async function findUserByPhone(admin: ReturnType<typeof getSupabaseAdmin>, phone: string) {
+  const digits = phone.replace(/\D/g, "")
+  return (
+    (await listAllUsers(admin)).find(
+      (u) => u.phone === phone || u.user_metadata?.phone === phone || u.user_metadata?.phone_display === phone,
+    ) ?? null
+  )
+}
+
+export async function findUserBySyntheticEmail(
+  admin: ReturnType<typeof getSupabaseAdmin>,
+  email: string,
+) {
+  return (await listAllUsers(admin)).find((u) => u.email?.toLowerCase() === email.toLowerCase()) ?? null
+}
+
+/** First-time phone login: create or repair auth user, then caller signs in. */
+export async function ensurePhoneAccount(admin: ReturnType<typeof getSupabaseAdmin>, phone: string) {
+  const email = phoneToSyntheticEmail(phone)
+  const password = phoneLoginPassword(phone)
+
+  const url = getProjectUrl()
+  const publishableKey = getPublishableKey()
+  if (!url || !publishableKey) {
+    throw new Error("缺少 VITE_SUPABASE_PUBLISHABLE_KEY，请在 Vercel 添加后 Redeploy")
+  }
+
+  const probe = createClient(url, publishableKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  })
+  const { error: signInError } = await probe.auth.signInWithPassword({ email, password })
+  if (!signInError) return
+
+  const { error: createError } = await admin.auth.admin.createUser({
+    email,
+    email_confirm: true,
+    password,
+    user_metadata: { login_method: "phone", phone, phone_display: phone },
+  })
+
+  if (!createError) return
+
+  const msg = createError.message.toLowerCase()
+  const exists =
+    msg.includes("already") || msg.includes("registered") || msg.includes("exists") || msg.includes("duplicate")
+
+  if (!exists) {
+    throw new Error(`创建账号失败：${createError.message}`)
+  }
+
+  const existing =
+    (await findUserBySyntheticEmail(admin, email)) ?? (await findUserByPhone(admin, phone))
+  if (!existing) {
+    throw new Error("账号可能已存在但无法关联，请在 Supabase → Users 删除该手机相关用户后重试")
+  }
+
+  const { error: updateError } = await admin.auth.admin.updateUserById(existing.id, {
+    password,
+    email_confirm: true,
+    user_metadata: { ...existing.user_metadata, login_method: "phone", phone, phone_display: phone },
+  })
+  if (updateError) {
+    throw new Error(`更新账号失败：${updateError.message}`)
+  }
 }
 
 /** Create a client session after OTP verified (uses synthetic email + server-side password). */

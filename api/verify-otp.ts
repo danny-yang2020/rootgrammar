@@ -1,11 +1,10 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node"
-import { hashOtp, normalizeChinaPhone, phoneToSyntheticEmail } from "./_lib/phone"
+import { hashOtp, normalizeChinaPhone } from "./_lib/phone"
 import {
   createSessionForPhoneUser,
-  findUserByPhone,
+  ensurePhoneAccount,
   getOtpSecret,
   getSupabaseAdmin,
-  phoneLoginPassword,
 } from "./_lib/supabase-admin"
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -49,35 +48,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     await admin.from("phone_otps").delete().eq("id", rows[0].id)
 
-    let user = await findUserByPhone(admin, phone)
-    const syntheticEmail = phoneToSyntheticEmail(phone)
-    const password = phoneLoginPassword(phone)
-
-    if (!user) {
-      const { data: created, error: createError } = await admin.auth.admin.createUser({
-        email: syntheticEmail,
-        email_confirm: true,
-        password,
-        phone,
-        phone_confirm: true,
-        user_metadata: { login_method: "phone", phone_display: phone },
-      })
-      if (createError) {
-        if (createError.message.includes("already")) {
-          user = await findUserByPhone(admin, phone)
-        } else {
-          console.error(createError)
-          return res.status(500).json({ error: `创建账号失败：${createError.message}` })
-        }
-      } else {
-        user = created.user
-      }
-    }
-
-    if (!user) {
-      return res.status(500).json({ error: "无法获取用户" })
-    }
-
+    await ensurePhoneAccount(admin, phone)
     const session = await createSessionForPhoneUser(phone)
 
     return res.status(200).json({
