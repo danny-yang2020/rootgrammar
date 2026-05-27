@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
 
-type Theme = "light" | "dark" | "system"
+export type Theme = "light" | "dark" | "system"
 
 interface ThemeContextValue {
   theme: Theme
@@ -24,6 +24,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setResolved(resolvedTheme)
     document.documentElement.classList.toggle("dark", resolvedTheme === "dark")
     localStorage.setItem("theme", theme)
+    const meta = document.querySelector('meta[name="theme-color"]')
+    meta?.setAttribute("content", resolvedTheme === "dark" ? "#0a0a0b" : "#f5f5f4")
   }, [theme])
 
   useEffect(() => {

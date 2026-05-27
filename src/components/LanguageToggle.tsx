@@ -11,7 +11,7 @@ export function LanguageToggle() {
 
   return (
     <div
-      className="flex rounded-md border border-gray-200 p-0.5 dark:border-gray-700"
+      className="flex rounded-md border border-stone-200 p-0.5 dark:border-gray-700"
       role="group"
       aria-label="Language"
     >

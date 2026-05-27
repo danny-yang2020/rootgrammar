@@ -9,7 +9,7 @@ export function RequireAuth() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0a0a0b] text-gray-400">
+      <div className="flex min-h-screen items-center justify-center bg-stone-50 text-stone-500 dark:bg-[#0a0a0b] dark:text-gray-400">
         {locale === "zh" ? "加载中…" : "Loading…"}
       </div>
     )

@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom"
 import { Menu, X } from "lucide-react"
 import { useLocale } from "../context/LocaleContext"
 import { useAuth } from "../context/AuthContext"
-import { ThemeToggle } from "./ThemeToggle"
+import { ThemeSwitcher } from "./ThemeSwitcher"
 import { LanguageToggle } from "./LanguageToggle"
 
 export function Header() {
@@ -78,7 +78,7 @@ export function Header() {
 
           <div className="flex flex-1 items-center justify-end gap-1 md:flex-none md:gap-2">
             <LanguageToggle />
-            <ThemeToggle />
+            <ThemeSwitcher />
             <div className="hidden items-center gap-2 md:flex">
               {user ? (
                 <>
@@ -140,6 +140,9 @@ export function Header() {
                 <NavLink href={link.href} label={link.label} onClick={() => setMenuOpen(false)} />
               </li>
             ))}
+            <li className="flex justify-center py-2">
+              <ThemeSwitcher />
+            </li>
             <li className="flex flex-col gap-2 pt-2">
               {user ? (
                 <>

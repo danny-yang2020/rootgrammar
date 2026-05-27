@@ -103,20 +103,22 @@ export function PracticeGame({ lesson, onLessonComplete, onExit }: PracticeGameP
     return (
       <div className="flex min-h-[70vh] flex-col items-center justify-center px-4 text-center">
         <div className="mb-2 text-6xl">🎉</div>
-        <h2 className="text-3xl font-bold text-white md:text-4xl">{t.practice.lessonDone}</h2>
-        <p className="mt-3 text-lg text-gray-400">{lessonTitle}</p>
+        <h2 className="text-3xl font-bold text-stone-900 md:text-4xl dark:text-white">{t.practice.lessonDone}</h2>
+        <p className="mt-3 text-lg text-stone-600 dark:text-gray-400">{lessonTitle}</p>
         <dl className="mt-8 grid grid-cols-3 gap-6 text-center">
           <div>
-            <dt className="text-sm text-gray-500">{t.practice.score}</dt>
-            <dd className="text-3xl font-bold text-amber-400 tabular-nums">{stats.score.toLocaleString()}</dd>
+            <dt className="text-sm text-stone-500 dark:text-gray-500">{t.practice.score}</dt>
+            <dd className="text-3xl font-bold text-amber-600 tabular-nums dark:text-amber-400">
+              {stats.score.toLocaleString()}
+            </dd>
           </div>
           <div>
-            <dt className="text-sm text-gray-500">{t.practice.accuracy}</dt>
-            <dd className="text-3xl font-bold text-emerald-400 tabular-nums">{accuracy}%</dd>
+            <dt className="text-sm text-stone-500 dark:text-gray-500">{t.practice.accuracy}</dt>
+            <dd className="text-3xl font-bold text-emerald-600 tabular-nums dark:text-emerald-400">{accuracy}%</dd>
           </div>
           <div>
-            <dt className="text-sm text-gray-500">{t.practice.maxCombo}</dt>
-            <dd className="text-3xl font-bold text-purple-400 tabular-nums">{stats.maxCombo}</dd>
+            <dt className="text-sm text-stone-500 dark:text-gray-500">{t.practice.maxCombo}</dt>
+            <dd className="text-3xl font-bold text-purple-600 tabular-nums dark:text-purple-400">{stats.maxCombo}</dd>
           </div>
         </dl>
         <div className="mt-10 flex flex-wrap justify-center gap-3">
@@ -126,7 +128,7 @@ export function PracticeGame({ lesson, onLessonComplete, onExit }: PracticeGameP
               setRecorded(false)
               restart()
             }}
-            className="rounded-lg border border-gray-600 px-6 py-3 text-base text-gray-200 transition-colors hover:bg-gray-800"
+            className="rounded-lg border border-stone-300 px-6 py-3 text-base text-stone-700 transition-colors hover:bg-stone-100 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800"
           >
             {t.practice.again}
           </button>
@@ -146,23 +148,25 @@ export function PracticeGame({ lesson, onLessonComplete, onExit }: PracticeGameP
 
   return (
     <div className={`flex min-h-[70vh] flex-col ${shake ? "animate-shake" : ""}`}>
-      <div className="flex items-center justify-between border-b border-white/5 px-4 py-3 text-sm text-gray-400">
+      <div className="flex items-center justify-between border-b border-stone-200 px-4 py-3 text-sm text-stone-600 dark:border-white/5 dark:text-gray-400">
         <span className="flex items-center gap-2">
           <Keyboard className="size-4" />
           {t.practice.keyboardHint} ({wordIndex + 1}/{currentSentence.words.length})
         </span>
         <div className="flex items-center gap-4 text-base">
           {stats.combo > 1 && (
-            <span className="flex items-center gap-1 font-semibold text-orange-400">
+            <span className="flex items-center gap-1 font-semibold text-orange-600 dark:text-orange-400">
               <Flame className="size-4" />
               {stats.combo}x
             </span>
           )}
-          <span className="font-semibold text-amber-400 tabular-nums">{stats.score.toLocaleString()}</span>
+          <span className="font-semibold text-amber-600 tabular-nums dark:text-amber-400">
+            {stats.score.toLocaleString()}
+          </span>
         </div>
       </div>
 
-      <div className="h-1.5 bg-gray-800">
+      <div className="h-1.5 bg-stone-200 dark:bg-gray-800">
         <div
           className="h-full bg-emerald-500 transition-all duration-300"
           style={{ width: `${progress}%` }}
@@ -170,7 +174,7 @@ export function PracticeGame({ lesson, onLessonComplete, onExit }: PracticeGameP
       </div>
 
       <div className="flex flex-1 flex-col items-center justify-center px-4 py-8">
-        <p className="mb-8 text-sm text-gray-500 md:text-base">
+        <p className="mb-8 text-sm text-stone-500 md:text-base dark:text-gray-500">
           {locale === "en"
             ? `${t.practice.sentenceProgress} ${sentenceIndex + 1} / ${totalSentences}`
             : `${t.practice.sentenceProgress} ${sentenceIndex + 1} / ${totalSentences} 句`}
@@ -189,14 +193,18 @@ export function PracticeGame({ lesson, onLessonComplete, onExit }: PracticeGameP
                 }`}
               >
                 {word.ipa && (
-                  <span className="rounded bg-teal-500/20 px-2 py-0.5 font-mono text-xs text-teal-300 md:text-sm">
+                  <span className="rounded bg-teal-100 px-2 py-0.5 font-mono text-xs text-teal-800 md:text-sm dark:bg-teal-500/20 dark:text-teal-300">
                     {word.ipa}
                   </span>
                 )}
                 <span
                   className={`text-2xl font-semibold md:text-4xl ${
-                    done ? "text-emerald-400" : active ? "text-white" : "text-gray-500"
-                  } ${active && flashCorrect ? "text-emerald-300" : ""}`}
+                    done
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : active
+                        ? "text-stone-900 dark:text-white"
+                        : "text-stone-400 dark:text-gray-500"
+                  } ${active && flashCorrect ? "text-emerald-500 dark:text-emerald-300" : ""}`}
                 >
                   {done ? word.en : active ? input || "＿" : "···"}
                 </span>
@@ -206,7 +214,9 @@ export function PracticeGame({ lesson, onLessonComplete, onExit }: PracticeGameP
                   >
                     {pos}
                   </span>
-                  {word.cn && <span className="text-sm text-gray-500 md:text-base">{word.cn}</span>}
+                  {word.cn && (
+                    <span className="text-sm text-stone-500 md:text-base dark:text-gray-500">{word.cn}</span>
+                  )}
                 </div>
               </div>
             )
@@ -232,7 +242,7 @@ export function PracticeGame({ lesson, onLessonComplete, onExit }: PracticeGameP
               autoCapitalize="off"
               spellCheck={false}
               enterKeyHint="done"
-              className="w-full border-b-2 border-purple-500/50 bg-transparent py-3 text-center text-2xl text-white outline-none focus:border-purple-400 md:text-3xl"
+              className="w-full border-b-2 border-purple-400/60 bg-transparent py-3 text-center text-2xl text-stone-900 outline-none focus:border-purple-500 md:text-3xl dark:border-purple-500/50 dark:text-white dark:focus:border-purple-400"
               placeholder=""
               aria-label={t.practice.inputLabel}
             />
@@ -241,7 +251,7 @@ export function PracticeGame({ lesson, onLessonComplete, onExit }: PracticeGameP
 
         {phase === "sentence-done" && (
           <div className="mt-10 text-center">
-            <p className="text-xl font-semibold text-emerald-400 md:text-2xl">{t.practice.perfect}</p>
+            <p className="text-xl font-semibold text-emerald-600 md:text-2xl dark:text-emerald-400">{t.practice.perfect}</p>
             <button
               type="button"
               onClick={() => {
@@ -252,11 +262,11 @@ export function PracticeGame({ lesson, onLessonComplete, onExit }: PracticeGameP
             >
               {sentenceIndex >= totalSentences - 1 ? t.practice.seeResults : t.practice.next}
             </button>
-            <p className="mt-3 text-sm text-gray-500">{t.practice.ready}</p>
+            <p className="mt-3 text-sm text-stone-500 dark:text-gray-500">{t.practice.ready}</p>
           </div>
         )}
 
-        <p className="mt-12 max-w-2xl text-center text-xl text-gray-200 md:text-2xl">
+        <p className="mt-12 max-w-2xl text-center text-xl text-stone-800 md:text-2xl dark:text-gray-200">
           {locale === "en" && currentSentence.promptEn
             ? currentSentence.promptEn
             : currentSentence.chinese}
