@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 import { useLocale } from "../context/LocaleContext"
 import { SiteLayout } from "../components/SiteLayout"
@@ -7,9 +7,11 @@ import { SiteLayout } from "../components/SiteLayout"
 type AuthTab = "phone" | "email"
 
 export function AuthPage() {
-  const { signIn, signUp, signInWithPhone, sendPhoneCode, configured } = useAuth()
+  const { user, signIn, signUp, signInWithPhone, sendPhoneCode, configured, loading: authLoading } = useAuth()
   const { locale } = useLocale()
   const navigate = useNavigate()
+  const location = useLocation()
+  const afterLogin = (location.state as { from?: string } | null)?.from ?? "/app"
   const [tab, setTab] = useState<AuthTab>(locale === "zh" ? "phone" : "email")
   const [emailMode, setEmailMode] = useState<"login" | "register">("login")
   const [phone, setPhone] = useState("")
@@ -20,6 +22,12 @@ export function AuthPage() {
   const [loading, setLoading] = useState(false)
   const [cooldown, setCooldown] = useState(0)
   const [devCode, setDevCode] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      navigate(afterLogin, { replace: true })
+    }
+  }, [user, authLoading, navigate, afterLogin])
 
   useEffect(() => {
     if (cooldown <= 0) return
@@ -94,7 +102,7 @@ export function AuthPage() {
       setMessage(error)
       return
     }
-    navigate("/learn")
+    navigate(afterLogin, { replace: true })
   }
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
@@ -112,7 +120,7 @@ export function AuthPage() {
       setMessage(copy.checkEmail)
       return
     }
-    navigate("/learn")
+    navigate(afterLogin, { replace: true })
   }
 
   return (

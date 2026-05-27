@@ -4,7 +4,7 @@
 
 | 项目 | 路径 | 作用 | 建议 |
 |------|------|------|------|
-| **主站（推荐上线）** | `rootwebsite/` | React 落地页 + `/learn` + `/practice` + 中英双语 | 部署到 **rootgrammar.com** |
+| **主站（推荐上线）** | `rootwebsite/` | 营销站 `/` + 产品区 `/app` + 练习 `/app/practice` | 部署到 **rootgrammar.com** |
 | 早期静态站 | `Movies/rootgrammar/` | 单页 HTML + 内嵌造句 demo | 可归档，功能已被主站覆盖 |
 | 语法地图 | `root-grammar-deck/` | Next.js 语法宇宙可视化 | 可作子产品：`map.rootgrammar.com` 或日后合并路由 |
 
@@ -30,7 +30,8 @@
 ```bash
 cd rootwebsite
 npm run dev
-# 练习: http://localhost:5173/practice/beginner-01
+# 产品区: http://localhost:5173/app
+# 练习: http://localhost:5173/app/practice/beginner-01
 ```
 
 ## 品牌与存储 key

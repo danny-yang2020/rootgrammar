@@ -1,12 +1,19 @@
 import { Link } from "react-router-dom"
 import { useLocale } from "../context/LocaleContext"
+import { useAuth } from "../context/AuthContext"
 import { GamePreview } from "./GamePreview"
 
 const heroAvatars = [1, 2, 3, 4].map((n) => `/commentsImgs/avatar-${n}.svg`)
 
 export function Hero() {
   const { locale, t } = useLocale()
+  const { user } = useAuth()
   const badgeNumber = locale === "en" ? "700K+" : "70万+"
+
+  const tryHref = user ? "/app/practice/beginner-01" : "/auth"
+  const tryState = user ? undefined : { from: "/app/practice/beginner-01" }
+  const coursesHref = user ? "/app/courses" : "/auth"
+  const coursesState = user ? undefined : { from: "/app/courses" }
 
   return (
     <section id="home" aria-label="Home" className="pt-16 text-gray-500">
@@ -61,13 +68,15 @@ export function Hero() {
 
       <div className="hero-stagger mt-8 flex items-center justify-center gap-3" style={{ "--stagger": 3 } as React.CSSProperties}>
         <Link
-          to="/practice/beginner-01"
+          to={tryHref}
+          state={tryState}
           className="hidden h-9 items-center justify-center rounded-lg bg-purple-500 px-6 py-2.5 text-sm font-medium text-white shadow transition-colors hover:bg-purple-600 md:inline-flex"
         >
           {t.hero.playNow}
         </Link>
         <Link
-          to="/learn"
+          to={user ? "/app" : "/auth"}
+          state={user ? undefined : { from: "/app" }}
           className="inline-flex h-9 items-center justify-center rounded-lg border border-purple-500 bg-purple-500 px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-purple-600 md:border-gray-300 md:bg-transparent md:text-gray-700 md:hover:bg-gray-50 md:dark:border-gray-500 md:dark:text-gray-200 md:dark:hover:bg-gray-800"
         >
           {t.hero.tryFree}
@@ -75,18 +84,23 @@ export function Hero() {
       </div>
 
       <p className="hero-stagger mt-5 text-center text-sm text-gray-500 dark:text-gray-400" style={{ "--stagger": 4 } as React.CSSProperties}>
-        <Link to="/auth" className="underline-offset-4 hover:underline">
-          {locale === "zh" ? "注册保存学习进度 →" : "Sign up to save progress →"}
-        </Link>
-        <span className="mx-2 text-gray-400">·</span>
-        <Link to="/learn" className="underline-offset-4 hover:underline">
+        {!user && (
+          <>
+            <Link to="/auth" state={{ from: "/app" }} className="underline-offset-4 hover:underline">
+              {locale === "zh" ? "注册保存学习进度 →" : "Sign up to save progress →"}
+            </Link>
+            <span className="mx-2 text-gray-400">·</span>
+          </>
+        )}
+        <Link to={coursesHref} state={coursesState} className="underline-offset-4 hover:underline">
           {t.hero.startCourse}
         </Link>
       </p>
 
       <div className="hero-preview mt-10 flex justify-center px-2 md:hidden">
         <Link
-          to="/practice/beginner-01"
+          to={tryHref}
+          state={tryState}
           className="group overflow-hidden rounded-xl border border-gray-200/60 shadow-lg transition-shadow hover:shadow-xl dark:border-gray-700/60"
         >
           <img
@@ -101,7 +115,7 @@ export function Hero() {
 
       <div className="relative mt-10 hidden w-full justify-center md:flex">
         <div className="mx-auto w-full max-w-[1320px] px-2">
-          <Link to="/practice/beginner-01" className="block transition-opacity hover:opacity-95">
+          <Link to={tryHref} state={tryState} className="block transition-opacity hover:opacity-95">
             <GamePreview />
           </Link>
         </div>

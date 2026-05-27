@@ -17,7 +17,7 @@ export function Header() {
 
   const navLinks = [
     { label: t.nav.docs, href: "#" },
-    { label: t.nav.learn, href: "/learn" },
+    { label: t.nav.learn, href: user ? "/app/courses" : "/auth" },
     { label: t.nav.changelog, href: "#" },
     { label: t.nav.features, href: "/#features" },
     { label: t.nav.faq, href: "/#faq" },
@@ -47,6 +47,9 @@ export function Header() {
       </a>
     )
   }
+
+  const primaryCta = user ? "/app" : "/auth"
+  const tryHref = user ? "/app/practice/beginner-01" : "/auth"
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md transition-colors dark:bg-[#0f0f10]/90">
@@ -79,9 +82,12 @@ export function Header() {
             <div className="hidden items-center gap-2 md:flex">
               {user ? (
                 <>
-                  <span className="max-w-[140px] truncate text-xs text-gray-500 dark:text-gray-400">
-                    {user.email}
-                  </span>
+                  <Link
+                    to="/app"
+                    className="h-8 rounded-md px-4 text-sm leading-8 text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"
+                  >
+                    {t.app.enterApp}
+                  </Link>
                   <button
                     type="button"
                     onClick={() => signOut()}
@@ -101,13 +107,14 @@ export function Header() {
                 )
               )}
               <Link
-                to="/learn"
+                to={primaryCta}
                 className="h-8 rounded-md px-4 text-sm leading-8 text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"
               >
                 {t.header.start}
               </Link>
               <Link
-                to="/practice/beginner-01"
+                to={tryHref}
+                state={user ? undefined : { from: "/app/practice/beginner-01" }}
                 className="h-8 rounded-md bg-purple-500 px-5 text-sm leading-8 text-white shadow transition-colors hover:bg-purple-600"
               >
                 {t.header.tryFree}
@@ -135,16 +142,25 @@ export function Header() {
             ))}
             <li className="flex flex-col gap-2 pt-2">
               {user ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    signOut()
-                    setMenuOpen(false)
-                  }}
-                  className="rounded-md border border-gray-300 py-2 text-sm dark:border-gray-600"
-                >
-                  {logoutLabel}
-                </button>
+                <>
+                  <Link
+                    to="/app"
+                    onClick={() => setMenuOpen(false)}
+                    className="rounded-md bg-purple-500 py-2 text-center text-sm text-white"
+                  >
+                    {t.app.enterApp}
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      signOut()
+                      setMenuOpen(false)
+                    }}
+                    className="rounded-md border border-gray-300 py-2 text-sm dark:border-gray-600"
+                  >
+                    {logoutLabel}
+                  </button>
+                </>
               ) : (
                 configured && (
                   <Link
@@ -158,14 +174,15 @@ export function Header() {
               )}
               <div className="flex gap-2">
                 <Link
-                  to="/learn"
+                  to={primaryCta}
                   onClick={() => setMenuOpen(false)}
                   className="flex-1 rounded-md border border-gray-300 py-2 text-center text-sm dark:border-gray-600"
                 >
                   {t.header.start}
                 </Link>
                 <Link
-                  to="/practice/beginner-01"
+                  to={tryHref}
+                  state={user ? undefined : { from: "/app/practice/beginner-01" }}
                   onClick={() => setMenuOpen(false)}
                   className="flex-1 rounded-md bg-purple-500 py-2 text-center text-sm text-white"
                 >

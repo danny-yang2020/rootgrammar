@@ -1,6 +1,6 @@
 export const navLinks = [
   { label: "文档", href: "#", external: false },
-  { label: "学习资源", href: "/learn", external: false },
+  { label: "学习资源", href: "/app/courses", external: false },
   { label: "更新日志", href: "#", external: false },
   { label: "功能", href: "/#features", external: false },
   { label: "问题", href: "/#faq", external: false },
