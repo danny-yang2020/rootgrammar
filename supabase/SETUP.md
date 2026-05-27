@@ -46,7 +46,10 @@ Vercel → Settings → Environment Variables → 添加同名变量 → **Redep
 
 `https://www.rootgrammar.com/api/health`
 
-应看到：`hasSupabaseUrl: true`、`hasServiceKey: true`。
+应看到：`supabaseUrlValid: true`、`hasServiceKey: true`。
+
+**Value 只填网址本身**，例如 `https://vrqugaxmximijkiuujpl.supabase.co`  
+不要填成 `VITE_SUPABASE_URL=https://...` 整行，也不要加引号。
 
 若登录页仍显示黄色 **Configure Supabase**：说明前端构建时没有 `VITE_*` 变量 → Vercel **Deployments → Redeploy**（改环境变量后必须重新部署）。
 
