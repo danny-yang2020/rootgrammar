@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+@keyframes heroReveal {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes previewReveal {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes statReveal {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-stagger {
+  animation: heroReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: calc(var(--stagger, 0) * 0.15s);
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+.hero-preview {
+  animation: previewReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.45s forwards;
+  opacity: 0;
+  transform: translateY(16px) scale(0.98);
+}
+
+.stat-card-visible {
+  animation: statReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: var(--stat-delay, 0s);
+}
+
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scroll-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-6px);
+  }
+  40%,
+  80% {
+    transform: translateX(6px);
+  }
+}
+
+.animate-shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-stagger,
+  .hero-preview,
+  .stat-card-visible,
+  .scroll-reveal {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

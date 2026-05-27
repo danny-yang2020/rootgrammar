@@ -1,0 +1,181 @@
+export type Locale = "en" | "zh"
+
+export const messages = {
+  en: {
+    brand: "Root Grammar",
+    meta: {
+      title: "Root Grammar — Learn English by building sentences",
+      description: "Gamified sentence practice with instant feedback. Type your way to fluent English.",
+    },
+    nav: {
+      docs: "Docs",
+      learn: "Learn",
+      changelog: "Changelog",
+      features: "Features",
+      faq: "FAQ",
+      contact: "Contact",
+    },
+    header: {
+      start: "Start learning",
+      tryFree: "Try for free",
+      menu: "Open menu",
+      lang: "Language",
+    },
+    hero: {
+      badge: "learners worldwide",
+      title: "Learn English with",
+      titleHighlight: "sentences",
+      titleEnd: "like playing a game",
+      subtitle: "Try it once",
+      subtitleEm: "you might get hooked",
+      playNow: "Play now",
+      tryFree: "Try for free",
+      startCourse: "Browse courses →",
+    },
+    stats: {
+      users: "Registered users",
+      hours: "Study hours",
+      completions: "Exercises completed",
+      avgSession: "Avg. session",
+      wan: "M+",
+      minutes: "min",
+    },
+    cta: {
+      title: "Start playing",
+      button: "Try for free",
+    },
+    learn: {
+      title: "Learn",
+      subtitle: "Pick a course and practice sentence by sentence. Progress is saved on this device.",
+      streak: "day streak",
+      totalScore: "Total score",
+      comingSoon: "Coming soon",
+      sentences: "sentences",
+      free: "Free",
+    },
+    practice: {
+      exit: "Exit",
+      home: "Home",
+      keyboardHint: "Type English and press Enter",
+      inputLabel: "Type the English word",
+      inputPlaceholder: "Type",
+      sentenceProgress: "Sentence",
+      perfect: "Perfect!",
+      next: "Next →",
+      seeResults: "See results",
+      lessonDone: "Lesson complete!",
+      score: "Score",
+      accuracy: "Accuracy",
+      maxCombo: "Best combo",
+      again: "Practice again",
+      backToCourses: "Back to courses",
+      notFound: "Lesson not found",
+      ready: "Press Enter to submit",
+    },
+    cookie: {
+      text: "We use cookies to improve your experience and analyze traffic. You can accept or reject non-essential cookies.",
+      learnMore: "Learn more",
+      reject: "Reject all",
+      accept: "Accept all",
+    },
+    levels: {
+      beginner: "Beginner",
+      intermediate: "Intermediate",
+      advanced: "Advanced",
+    },
+  },
+  zh: {
+    brand: "Root Grammar",
+    meta: {
+      title: "Root Grammar - 像玩游戏一样，用句子学英语",
+      description: "游戏化连词成句练习，即时反馈，用键盘把英语练到能用出来。",
+    },
+    nav: {
+      docs: "文档",
+      learn: "学习资源",
+      changelog: "更新日志",
+      features: "功能",
+      faq: "问题",
+      contact: "联系我们",
+    },
+    header: {
+      start: "开始学习",
+      tryFree: "免费体验",
+      menu: "打开菜单",
+      lang: "语言",
+    },
+    hero: {
+      badge: "学习者的选择",
+      title: "像玩游戏一样，用",
+      titleHighlight: "句子",
+      titleEnd: "学英语",
+      subtitle: "谨慎体验",
+      subtitleEm: "小心上瘾",
+      playNow: "先玩一把",
+      tryFree: "免费体验",
+      startCourse: "选择课程开始学习 →",
+    },
+    stats: {
+      users: "注册用户",
+      hours: "累计学习小时",
+      completions: "练习完成次数",
+      avgSession: "平均每次学习",
+      wan: "万+",
+      minutes: "分钟",
+    },
+    cta: {
+      title: "立马玩起来",
+      button: "免费体验",
+    },
+    learn: {
+      title: "学习资源",
+      subtitle: "选择课程包，用连词成句的方式开始练习。进度会自动保存在本机。",
+      streak: "连续",
+      totalScore: "累计得分",
+      comingSoon: "内容筹备中，敬请期待",
+      sentences: "个句子",
+      free: "免费",
+    },
+    practice: {
+      exit: "退出练习",
+      home: "首页",
+      keyboardHint: "用键盘输入英文，按 Enter 确认",
+      inputLabel: "输入英文单词",
+      inputPlaceholder: "输入",
+      sentenceProgress: "第",
+      perfect: "Perfect!",
+      next: "下一句 →",
+      seeResults: "查看结果",
+      lessonDone: "课程完成！",
+      score: "得分",
+      accuracy: "正确率",
+      maxCombo: "最高连击",
+      again: "再练一遍",
+      backToCourses: "返回课程列表",
+      notFound: "找不到该课程",
+      ready: "按 Enter 提交答案",
+    },
+    cookie: {
+      text: "我们使用 Cookie 来改善您的体验并分析网站流量。您可以选择接受或拒绝非必要的 Cookie。",
+      learnMore: "了解更多",
+      reject: "全部拒绝",
+      accept: "全部接受",
+    },
+    levels: {
+      beginner: "初级",
+      intermediate: "中级",
+      advanced: "高级",
+    },
+  },
+} as const
+
+export type Messages = (typeof messages)[Locale]
+
+function detectLocale(): Locale {
+  if (typeof navigator === "undefined") return "en"
+  const stored = localStorage.getItem("locale") as Locale | null
+  if (stored === "en" || stored === "zh") return stored
+  return navigator.language.toLowerCase().startsWith("zh") ? "zh" : "en"
+}
+
+export { detectLocale }
