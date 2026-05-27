@@ -1,11 +1,16 @@
 import { createClient } from "@supabase/supabase-js"
 
-export function getSupabaseAdmin() {
-  const url = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
-  const serviceKey =
+export function getServiceKey(): string | undefined {
+  return (
     process.env.SUPABASE_SERVICE_ROLE_KEY ||
     process.env.SUPABASE_SECRET_KEY ||
     process.env.SB_SECRET_KEY
+  )
+}
+
+export function getSupabaseAdmin() {
+  const url = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
+  const serviceKey = getServiceKey()
   if (!url || !serviceKey) {
     throw new Error("Missing SUPABASE_URL or server secret key (service_role / sb_secret)")
   }
@@ -32,7 +37,10 @@ export async function createSessionForUser(
   userId: string,
 ) {
   const url = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+  const serviceKey = getServiceKey()
+  if (!url || !serviceKey) {
+    throw new Error("Missing SUPABASE_URL or server secret key")
+  }
   const res = await fetch(`${url}/auth/v1/admin/users/${userId}/sessions`, {
     method: "POST",
     headers: {

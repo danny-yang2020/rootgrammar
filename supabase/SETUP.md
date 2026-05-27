@@ -39,3 +39,15 @@ Vercel → Settings → Environment Variables → 添加同名变量 → **Redep
 | **Secret** `sb_secret_...` 或 Legacy 的 **service_role** `eyJ...` | Vercel：`SUPABASE_SERVICE_ROLE_KEY` | 仅服务器（发短信、登录） |
 
 找不到 service_role 时：点 **API Keys** 页第二个标签 **Legacy anon, service_role API keys**，或直接用 **Secret keys** 里的 `sb_secret_`。
+
+## 6. 线上排错
+
+部署后打开（应返回 JSON，不是网页）：
+
+`https://www.rootgrammar.com/api/health`
+
+应看到：`hasSupabaseUrl: true`、`hasServiceKey: true`。
+
+若登录页仍显示黄色 **Configure Supabase**：说明前端构建时没有 `VITE_*` 变量 → Vercel **Deployments → Redeploy**（改环境变量后必须重新部署）。
+
+若 **Send code** 报错：先检查 `/api/health`；再确认已 push 最新代码（含 `api/` 目录）。

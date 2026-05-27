@@ -7,6 +7,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: "Method not allowed" })
   }
 
+  if (!(process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL)) {
+    return res.status(500).json({ error: "Vercel 缺少 VITE_SUPABASE_URL，请添加后 Redeploy" })
+  }
+  if (
+    !process.env.SUPABASE_SERVICE_ROLE_KEY &&
+    !process.env.SUPABASE_SECRET_KEY &&
+    !process.env.SB_SECRET_KEY
+  ) {
+    return res
+      .status(500)
+      .json({ error: "Vercel 缺少 SUPABASE_SERVICE_ROLE_KEY（sb_secret_），请添加后 Redeploy" })
+  }
+
   const phone = normalizeChinaPhone(String(req.body?.phone ?? ""))
   if (!phone) {
     return res.status(400).json({ error: "请输入正确的 11 位中国大陆手机号" })
@@ -62,6 +75,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json(payload)
   } catch (e) {
     console.error(e)
-    return res.status(500).json({ error: "发送失败，请稍后重试" })
+    const msg = e instanceof Error ? e.message : "发送失败，请稍后重试"
+    return res.status(500).json({ error: msg })
   }
 }
