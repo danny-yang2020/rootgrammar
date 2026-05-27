@@ -1,4 +1,5 @@
 import { createClient, type User } from "@supabase/supabase-js"
+import { phoneToSyntheticEmail } from "./phone"
 
 export function getServiceKey(): string | undefined {
   return (
@@ -8,8 +9,30 @@ export function getServiceKey(): string | undefined {
   )
 }
 
+function getProjectUrl(): string | undefined {
+  return process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
+}
+
+function getPublishableKey(): string | undefined {
+  return (
+    process.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+    process.env.VITE_SUPABASE_ANON_KEY ||
+    process.env.SUPABASE_ANON_KEY
+  )
+}
+
+export function getOtpSecret(): string | undefined {
+  return process.env.OTP_SECRET || getServiceKey()
+}
+
+export function phoneLoginPassword(phone: string): string {
+  const secret = getOtpSecret()
+  if (!secret) throw new Error("Missing OTP secret")
+  return `${secret.slice(0, 16)}_${phone.replace(/\D/g, "")}`
+}
+
 export function getSupabaseAdmin() {
-  const url = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
+  const url = getProjectUrl()
   const serviceKey = getServiceKey()
   if (!url || !serviceKey) {
     throw new Error("Missing SUPABASE_URL or server secret key (service_role / sb_secret)")
@@ -33,40 +56,31 @@ export async function findUserByPhone(admin: ReturnType<typeof getSupabaseAdmin>
   return null
 }
 
-export async function createSessionForUser(
-  admin: ReturnType<typeof getSupabaseAdmin>,
-  userId: string,
-) {
-  const url = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
-  const serviceKey = getServiceKey()
-  if (!url || !serviceKey) {
-    throw new Error("Missing SUPABASE_URL or server secret key")
+/** Create a client session after OTP verified (uses synthetic email + server-side password). */
+export async function createSessionForPhoneUser(phone: string) {
+  const url = getProjectUrl()
+  const publishableKey = getPublishableKey()
+  if (!url || !publishableKey) {
+    throw new Error("缺少 VITE_SUPABASE_PUBLISHABLE_KEY，请在 Vercel 添加后 Redeploy")
   }
-  const res = await fetch(`${url}/auth/v1/admin/users/${userId}/sessions`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${serviceKey}`,
-      apikey: serviceKey,
-      "Content-Type": "application/json",
-    },
+
+  const email = phoneToSyntheticEmail(phone)
+  const password = phoneLoginPassword(phone)
+  const client = createClient(url, publishableKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
   })
-  const body = (await res.json()) as {
-    message?: string
-    error_description?: string
-    access_token?: string
-    refresh_token?: string
-    expires_in?: number
-    token_type?: string
-    user?: unknown
+
+  const { data, error } = await client.auth.signInWithPassword({ email, password })
+  if (error) {
+    throw new Error(error.message)
   }
-  if (!res.ok) {
-    throw new Error(body.message || body.error_description || "Failed to create session")
+  if (!data.session) {
+    throw new Error("无法创建登录会话")
   }
-  return body as {
-    access_token: string
-    refresh_token: string
-    expires_in: number
-    token_type: string
-    user: unknown
+
+  return {
+    access_token: data.session.access_token,
+    refresh_token: data.session.refresh_token,
+    expires_in: data.session.expires_in ?? 3600,
   }
 }

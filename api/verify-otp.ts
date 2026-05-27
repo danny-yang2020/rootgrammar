@@ -1,6 +1,12 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node"
 import { hashOtp, normalizeChinaPhone, phoneToSyntheticEmail } from "./_lib/phone"
-import { createSessionForUser, findUserByPhone, getSupabaseAdmin } from "./_lib/supabase-admin"
+import {
+  createSessionForPhoneUser,
+  findUserByPhone,
+  getOtpSecret,
+  getSupabaseAdmin,
+  phoneLoginPassword,
+} from "./_lib/supabase-admin"
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
@@ -16,7 +22,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: "请输入 6 位验证码" })
   }
 
-  const otpSecret = process.env.OTP_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY
+  const otpSecret = getOtpSecret()
   if (!otpSecret) {
     return res.status(500).json({ error: "Server misconfigured" })
   }
@@ -44,24 +50,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     await admin.from("phone_otps").delete().eq("id", rows[0].id)
 
     let user = await findUserByPhone(admin, phone)
+    const syntheticEmail = phoneToSyntheticEmail(phone)
+    const password = phoneLoginPassword(phone)
 
     if (!user) {
-      const syntheticEmail = phoneToSyntheticEmail(phone)
-      const password = `${otpSecret.slice(0, 16)}_${phone.replace(/\D/g, "")}`
       const { data: created, error: createError } = await admin.auth.admin.createUser({
-        phone,
-        phone_confirm: true,
         email: syntheticEmail,
         email_confirm: true,
         password,
-        user_metadata: { login_method: "phone" },
+        phone,
+        phone_confirm: true,
+        user_metadata: { login_method: "phone", phone_display: phone },
       })
       if (createError) {
         if (createError.message.includes("already")) {
           user = await findUserByPhone(admin, phone)
         } else {
           console.error(createError)
-          return res.status(500).json({ error: "创建账号失败" })
+          return res.status(500).json({ error: `创建账号失败：${createError.message}` })
         }
       } else {
         user = created.user
@@ -72,7 +78,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(500).json({ error: "无法获取用户" })
     }
 
-    const session = await createSessionForUser(admin, user.id)
+    const session = await createSessionForPhoneUser(phone)
 
     return res.status(200).json({
       access_token: session.access_token,
@@ -81,6 +87,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     })
   } catch (e) {
     console.error(e)
-    return res.status(500).json({ error: "登录失败，请稍后重试" })
+    const msg = e instanceof Error ? e.message : "登录失败，请稍后重试"
+    return res.status(500).json({ error: msg })
   }
 }

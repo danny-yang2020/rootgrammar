@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node"
 import { generateOtp, hashOtp, normalizeChinaPhone } from "./_lib/phone"
-import { getSupabaseAdmin } from "./_lib/supabase-admin"
+import { getOtpSecret, getSupabaseAdmin } from "./_lib/supabase-admin"
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
@@ -25,7 +25,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: "请输入正确的 11 位中国大陆手机号" })
   }
 
-  const otpSecret = process.env.OTP_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY
+  const otpSecret = getOtpSecret()
   if (!otpSecret) {
     return res.status(500).json({ error: "Server misconfigured: OTP_SECRET" })
   }
