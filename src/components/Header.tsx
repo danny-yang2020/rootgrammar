@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Link, useLocation } from "react-router-dom"
 import { Menu, X } from "lucide-react"
 import { useLocale } from "../context/LocaleContext"
+import { useAuth } from "../context/AuthContext"
 import { ThemeToggle } from "./ThemeToggle"
 import { LanguageToggle } from "./LanguageToggle"
 
@@ -9,7 +10,10 @@ export function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const location = useLocation()
   const isHome = location.pathname === "/"
-  const { t } = useLocale()
+  const { t, locale } = useLocale()
+  const { user, signOut, configured } = useAuth()
+  const authLabel = locale === "zh" ? "登录" : "Log in"
+  const logoutLabel = locale === "zh" ? "退出" : "Log out"
 
   const navLinks = [
     { label: t.nav.docs, href: "#" },
@@ -73,6 +77,29 @@ export function Header() {
             <LanguageToggle />
             <ThemeToggle />
             <div className="hidden items-center gap-2 md:flex">
+              {user ? (
+                <>
+                  <span className="max-w-[140px] truncate text-xs text-gray-500 dark:text-gray-400">
+                    {user.email}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => signOut()}
+                    className="h-8 rounded-md px-3 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"
+                  >
+                    {logoutLabel}
+                  </button>
+                </>
+              ) : (
+                configured && (
+                  <Link
+                    to="/auth"
+                    className="h-8 rounded-md px-4 text-sm leading-8 text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"
+                  >
+                    {authLabel}
+                  </Link>
+                )
+              )}
               <Link
                 to="/learn"
                 className="h-8 rounded-md px-4 text-sm leading-8 text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"
@@ -106,21 +133,45 @@ export function Header() {
                 <NavLink href={link.href} label={link.label} onClick={() => setMenuOpen(false)} />
               </li>
             ))}
-            <li className="flex gap-2 pt-2">
-              <Link
-                to="/learn"
-                onClick={() => setMenuOpen(false)}
-                className="flex-1 rounded-md border border-gray-300 py-2 text-center text-sm dark:border-gray-600"
-              >
-                {t.header.start}
-              </Link>
-              <Link
-                to="/practice/beginner-01"
-                onClick={() => setMenuOpen(false)}
-                className="flex-1 rounded-md bg-purple-500 py-2 text-center text-sm text-white"
-              >
-                {t.header.tryFree}
-              </Link>
+            <li className="flex flex-col gap-2 pt-2">
+              {user ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    signOut()
+                    setMenuOpen(false)
+                  }}
+                  className="rounded-md border border-gray-300 py-2 text-sm dark:border-gray-600"
+                >
+                  {logoutLabel}
+                </button>
+              ) : (
+                configured && (
+                  <Link
+                    to="/auth"
+                    onClick={() => setMenuOpen(false)}
+                    className="rounded-md border border-gray-300 py-2 text-center text-sm dark:border-gray-600"
+                  >
+                    {authLabel}
+                  </Link>
+                )
+              )}
+              <div className="flex gap-2">
+                <Link
+                  to="/learn"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex-1 rounded-md border border-gray-300 py-2 text-center text-sm dark:border-gray-600"
+                >
+                  {t.header.start}
+                </Link>
+                <Link
+                  to="/practice/beginner-01"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex-1 rounded-md bg-purple-500 py-2 text-center text-sm text-white"
+                >
+                  {t.header.tryFree}
+                </Link>
+              </div>
             </li>
           </ul>
         </div>

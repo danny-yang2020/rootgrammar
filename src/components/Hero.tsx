@@ -75,6 +75,10 @@ export function Hero() {
       </div>
 
       <p className="hero-stagger mt-5 text-center text-sm text-gray-500 dark:text-gray-400" style={{ "--stagger": 4 } as React.CSSProperties}>
+        <Link to="/auth" className="underline-offset-4 hover:underline">
+          {locale === "zh" ? "注册保存学习进度 →" : "Sign up to save progress →"}
+        </Link>
+        <span className="mx-2 text-gray-400">·</span>
         <Link to="/learn" className="underline-offset-4 hover:underline">
           {t.hero.startCourse}
         </Link>
