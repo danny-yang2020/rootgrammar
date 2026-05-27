@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js"
+import { createClient, type User } from "@supabase/supabase-js"
 
 export function getServiceKey(): string | undefined {
   return (
@@ -24,9 +24,10 @@ export async function findUserByPhone(admin: ReturnType<typeof getSupabaseAdmin>
   while (page <= 10) {
     const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 200 })
     if (error) throw error
-    const found = data.users.find((u) => u.phone === phone)
+    const users = data.users as User[]
+    const found = users.find((u) => u.phone === phone)
     if (found) return found
-    if (data.users.length < 200) break
+    if (users.length < 200) break
     page += 1
   }
   return null
@@ -49,7 +50,15 @@ export async function createSessionForUser(
       "Content-Type": "application/json",
     },
   })
-  const body = await res.json()
+  const body = (await res.json()) as {
+    message?: string
+    error_description?: string
+    access_token?: string
+    refresh_token?: string
+    expires_in?: number
+    token_type?: string
+    user?: unknown
+  }
   if (!res.ok) {
     throw new Error(body.message || body.error_description || "Failed to create session")
   }
